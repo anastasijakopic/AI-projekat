@@ -73,3 +73,22 @@ def print_comparison(pipeline: RagPipeline, question: str, top_k: int) -> None:
         print(f"\n--- {metric.upper()} ---")
         print(format_results(results))
 
+def run_interactive(pipeline: RagPipeline, top_k: int, compare: bool) -> None:
+    # Pokrece unos pitanja kroz konzolu dok korisnik ne zaustavi
+    print("\nUnesite pitanje ili 'exit' za kraj.")
+    while True:
+        question = input("\nPitanje> ").strip()
+        if question.lower() in {"exit", "quit", "kraj"}:
+            break
+        if not question:
+            continue
+
+        if compare:
+            print_comparison(pipeline, question, top_k)
+        else:
+            # Za jedno pitanje dobijamo odgovor i najrelevantnije chunkove
+            answer, results = pipeline.ask(question, top_k=top_k)
+            print("\n" + answer)
+            print("\nNajrelevantniji chunkovi:")
+            print(format_results(results))
+
