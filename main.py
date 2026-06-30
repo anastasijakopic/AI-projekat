@@ -50,4 +50,20 @@ def build_parser() -> argparse.ArgumentParser:
     )
     return parser
 
+def create_pipeline(args: argparse.Namespace) -> RagPipeline:
+    # Kreira embedding model i RAG pipeline prema izabranim argumentima
+    embedding_model = create_embedding_model(args.embedding, args.model)
+    pipeline = RagPipeline(
+        embedding_model=embedding_model,
+        vector_backend=args.vector_store,
+        metric=args.metric,
+    )
+    # Ucitava dokumente iz foldera i pravi indeks za pretragu.
+    pipeline.index_folder(args.docs)
+    print(f"Embedding model: {embedding_model.name}")
+    print(f"Vector store: {pipeline.store.backend_name}")
+    print(f"Indeksirano chunkova: {len(pipeline.chunks)}")
+    return pipeline
+
+
 
