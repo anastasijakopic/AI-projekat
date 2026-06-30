@@ -65,5 +65,11 @@ def create_pipeline(args: argparse.Namespace) -> RagPipeline:
     print(f"Indeksirano chunkova: {len(pipeline.chunks)}")
     return pipeline
 
-
+def print_comparison(pipeline: RagPipeline, question: str, top_k: int) -> None:
+    # Ispisuje rezultate za cosine i Euclidean metriku radi poredjenja
+    comparison = pipeline.compare_metrics(question, top_k=top_k)
+    print(f"\nPitanje: {question}")
+    for metric, results in comparison.items():
+        print(f"\n--- {metric.upper()} ---")
+        print(format_results(results))
 
