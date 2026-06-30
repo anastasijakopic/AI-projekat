@@ -92,3 +92,43 @@ def run_interactive(pipeline: RagPipeline, top_k: int, compare: bool) -> None:
             print("\nNajrelevantniji chunkovi:")
             print(format_results(results))
 
+def main() -> None:
+    # Glavna funkcija povezuje argumente i  pipeline
+    parser = build_parser()
+    args = parser.parse_args()
+    try:
+        pipeline = create_pipeline(args)
+    except RuntimeError as exc:
+        print(f"Greska: {exc}")
+        raise SystemExit(1) from exc
+
+    if args.demo:
+        # Demo mod prolazi kroz nekoliko unaprijed definisanih pitanja.
+        for question in DEMO_QUESTIONS:
+            if args.compare:
+                print_comparison(pipeline, question, args.top_k)
+            else:
+                answer, results = pipeline.ask(question, top_k=args.top_k)
+                print("\n" + "=" * 80)
+                print(answer)
+                print("\nNajrelevantniji chunkovi:")
+                print(format_results(results))
+        return
+
+    if args.question:
+        # Ako je pitanje proslijedjeno odmah, program odgovara samo na njega
+        if args.compare:
+            print_comparison(pipeline, args.question, args.top_k)
+        else:
+            answer, results = pipeline.ask(args.question, top_k=args.top_k)
+            print(answer)
+            print("\nNajrelevantniji chunkovi:")
+            print(format_results(results))
+        return
+
+    run_interactive(pipeline, args.top_k, args.compare)
+
+
+if __name__ == "__main__":
+    main()
+
