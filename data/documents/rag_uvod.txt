@@ -1,0 +1,5 @@
+RAG je skracenica za Retrieval-Augmented Generation. To je pristup u kome sistem prvo pretrazuje spoljne dokumente, pronalazi relevantan kontekst, a zatim na osnovu tog konteksta formira odgovor. Ideja je da model ne mora sve znanje cuvati u svojim parametrima, nego moze koristiti dokumente koji se nalaze izvan modela.
+
+Tipican RAG tok ima dvije faze. Prva faza je indeksiranje dokumenata. Dokumenti se ucitavaju, dijele na manje dijelove koji se nazivaju chunkovi i pretvaraju u embedding vektore. Druga faza je odgovaranje na pitanje korisnika. Pitanje se takodje pretvara u embedding, a zatim se pronalaze chunkovi koji su najblizi pitanju.
+
+RAG je koristan kada se radi sa lokalnim skriptama, pravilnicima, tehnickom dokumentacijom, nastavnim materijalima ili drugim tekstovima koji se mogu mijenjati. Umjesto da se model ponovo trenira svaki put kada se promijeni dokument, dovoljno je ponovo indeksirati dokumente.

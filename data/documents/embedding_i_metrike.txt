@@ -1,0 +1,6 @@
+Embedding je vektorsko predstavljanje teksta. Rijeci, recenice ili dokumenti se pretvaraju u niz brojeva tako da tekstovi slicnog znacenja budu blizu u vektorskom prostoru. Embedding modeli mogu biti jednostavni modeli zasnovani na frekvenciji rijeci ili napredni transformer modeli kao sto su SentenceTransformer modeli.
+
+Cosine similarity mjeri slicnost pravca dva vektora. Ako dva vektora pokazuju u slicnom pravcu, cosine similarity je visoka. Ova metrika se veoma cesto koristi u semantickoj pretrazi jer duzina vektora nije najvaznija, nego odnos izmedju njegovih komponenti.
+
+Euclidean distance mjeri direktnu udaljenost izmedju dva vektora. Manja udaljenost znaci vecu slicnost. Kod tekstualnih embeddinga ova metrika moze biti korisna, ali je osjetljivija na duzinu vektora i skalu vrijednosti.
+

@@ -1,0 +1,5 @@
+Fine-tuning je dodatno treniranje postojeceg modela na novim podacima. Cilj je da se model prilagodi nekom domenu, stilu odgovaranja ili specificnom zadatku. Fine-tuning moze dati dobre rezultate, ali trazi vise racunarskih resursa i teze se azurira kada se promijene podaci.
+
+RAG ne mijenja parametre modela. Umjesto toga koristi eksternu bazu znanja koja se moze lako dopuniti novim dokumentima. Kada korisnik postavi pitanje, sistem pronalazi relevantne dijelove dokumenata i koristi ih kao kontekst za odgovor.
+
+Glavna prednost RAG pristupa je fleksibilnost. Dokumenti se mogu mijenjati bez ponovnog treniranja modela. Glavna prednost fine-tuninga je sto model moze nauciti specijalizovan nacin odgovaranja, ali to dolazi uz vecu cijenu i slozenost.
