@@ -8,6 +8,7 @@ SENTENCE_PATTERN = re.compile(r"(?<=[.!?])\s+")
 
 
 def extract_relevant_context(question: str, text: str, max_chars: int = 900) -> str:
+    # Izdvaja dio teksta koji je najkorisniji za odgovor
     context = text.strip()
     if len(context) <= max_chars:
         sentences = split_sentences(context)
@@ -23,18 +24,21 @@ def extract_relevant_context(question: str, text: str, max_chars: int = 900) -> 
 
 
 def split_sentences(text: str) -> list[str]:
+    # Dijeli tekst na recenice i uklanja visak razmaka
     text = re.sub(r"\s+", " ", text).strip()
     return [sentence.strip() for sentence in SENTENCE_PATTERN.split(text) if sentence.strip()]
 
 
 def focus_sentences(question: str, sentences: list[str]) -> str:
+    # Pronalazi recenice koje imaju najvise zajednickih rijeci sa pitanjem
     if not sentences:
         return ""
-
+    # Kratke rijeci preskacemo jer uglavnom nisu informativne
     query_tokens = {token for token in tokenize(question) if len(token) > 3}
     if not query_tokens:
         return " ".join(sentences[:3])
 
+    # Trazimo recenicu koja se najvise poklapa sa pitanjem
     best_index = 0
     best_score = -1
     for index, sentence in enumerate(sentences):
@@ -44,12 +48,14 @@ def focus_sentences(question: str, sentences: list[str]) -> str:
             best_score = score
             best_index = index
 
+    # Uzimamo najbolju recenicu
     start = max(0, best_index - 1)
     end = min(len(sentences), best_index + 2)
     return " ".join(sentences[start:end])
 
 
 def build_answer(question: str, results: list[SearchResult]) -> str:
+    # Pravi konacan odgovor na osnovu najboljeg pronadjenog rezultata
     if not results:
         return "Nisam pronasao relevantan kontekst u dokumentima."
 
@@ -63,4 +69,17 @@ def build_answer(question: str, results: list[SearchResult]) -> str:
         f"Izvor: {best.chunk.document_path}\n"
         f"Metrika: {best.metric}, skor: {best.score:.4f}"
     )
+
+def format_results(results: list[SearchResult]) -> str:
+    # Formatira rezultate pretrage za ispis u konzoli
+    lines = []
+    for index, result in enumerate(results, start=1):
+        text = result.chunk.text.replace("\n", " ")
+        if len(text) > 220:
+            text = text[:220].rsplit(" ", 1)[0] + "..."
+        lines.append(
+            f"{index}. score={result.score:.4f} | file={result.chunk.document_path}\n"
+            f"   {text}"
+        )
+    return "\n".join(lines)
 
