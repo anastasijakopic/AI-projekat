@@ -40,8 +40,8 @@ def clean_chunk_start(text: str, start: int, end: int) -> int:
 
 def chunk_document(
     document: Document,
-    chunk_size: int = 700,
-    overlap: int = 120,
+    chunk_size: int = 900,
+    overlap: int = 180,
 ) -> list[Chunk]:
     if chunk_size <= 0:
         raise ValueError("chunk_size mora biti veci od nule")
@@ -89,11 +89,12 @@ def chunk_document(
 
 def chunk_documents(
     documents: list[Document],
-    chunk_size: int = 700,
-    overlap: int = 120,
+    chunk_size: int = 900,
+    overlap: int = 180,
 ) -> list[Chunk]:
     chunks = []
     for document in documents:
         chunks.extend(chunk_document(document, chunk_size, overlap))
     return chunks
+
 
