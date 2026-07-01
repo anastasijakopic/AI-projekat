@@ -108,7 +108,10 @@ Poredjenje cosine similarity i Euclidean distance:
 
 ```bash
 python main.py --demo --compare
+
+python main.py --docs data/documents --question "Sta je RAG sistem?" --compare 
 ```
+
 
 Koristenje FAISS vector store-a:
 
