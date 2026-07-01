@@ -5,9 +5,12 @@ import math
 import re
 from collections import Counter
 from typing import Protocol
+
 import numpy as np
 
+
 TOKEN_PATTERN = re.compile(r"[\wčćžšđČĆŽŠĐ]+", re.UNICODE)
+
 
 class EmbeddingModel(Protocol):
     name: str
@@ -17,36 +20,62 @@ class EmbeddingModel(Protocol):
 
 
 def tokenize(text: str) -> list[str]:
-    # Izdvajamo rijeci iz teksta i pretvaramo ih u mala slova
     return [token.lower() for token in TOKEN_PATTERN.findall(text)]
 
 
 class HashingEmbeddingModel:
-    
-    name = "local-hashing-embedding"
+    """Lokalni embedding model koji radi bez interneta.
+
+    Model koristi hashing trik, unigram/bigram tokene, IDF tezine i L2
+    normalizaciju. IDF smanjuje uticaj cestih izraza i pojacava rijetke,
+    specificne termine kao sto su nazivi algoritama ili biblioteka.
+    """
+
+    name = "local-hashing-idf-embedding"
 
     def __init__(self, dimension: int = 512):
         self.dimension = dimension
+        self.idf: dict[str, float] = {}
+        self.default_idf = 1.0
+        self.is_fitted = False
+
+    def fit(self, texts: list[str]) -> None:
+        document_frequency: Counter[str] = Counter()
+
+        for text in texts:
+            features = set(self._extract_features(text))
+            document_frequency.update(features)
+
+        document_count = max(len(texts), 1)
+        self.idf = {
+            feature: math.log((1 + document_count) / (1 + frequency)) + 1.0
+            for feature, frequency in document_frequency.items()
+        }
+        self.default_idf = math.log(1 + document_count) + 1.0
+        self.is_fitted = True
 
     def encode(self, texts: list[str]) -> np.ndarray:
-        # Svaki tekst dobija svoj vektor fiksne duzine
+        if not self.is_fitted:
+            self.fit(texts)
+
         vectors = np.zeros((len(texts), self.dimension), dtype=np.float32)
 
         for row, text in enumerate(texts):
-            tokens = tokenize(text)
-            features = tokens + [
-                f"{left}_{right}" for left, right in zip(tokens, tokens[1:])
-            ]
-            counts = Counter(features)
+            counts = Counter(self._extract_features(text))
 
             for token, count in counts.items():
-                # Hash odredjuje poziciju u vektoru na koju se dodaje vrijednost
                 digest = hashlib.md5(token.encode("utf-8")).digest()
                 index = int.from_bytes(digest[:4], "little") % self.dimension
                 sign = 1.0 if digest[4] % 2 == 0 else -1.0
-                vectors[row, index] += sign * (1.0 + math.log(count))
+                tf = 1.0 + math.log(count)
+                vectors[row, index] += sign * tf * self.idf.get(token, self.default_idf)
 
         return l2_normalize(vectors)
+
+    def _extract_features(self, text: str) -> list[str]:
+        tokens = tokenize(text)
+        bigrams = [f"{left}_{right}" for left, right in zip(tokens, tokens[1:])]
+        return tokens + bigrams
 
 
 class SentenceTransformerEmbeddingModel:
@@ -78,14 +107,12 @@ class SentenceTransformerEmbeddingModel:
 
 
 def l2_normalize(vectors: np.ndarray) -> np.ndarray:
-    # Normalizacija pomaze da se vektori porede preko slicnosti
     norms = np.linalg.norm(vectors, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
     return vectors / norms
 
 
 def create_embedding_model(kind: str, model_name: str | None = None) -> EmbeddingModel:
-    # Bira koji embedding model ce se koristiti
     if kind == "local":
         return HashingEmbeddingModel()
     if kind == "sentence-transformer":
@@ -98,5 +125,3 @@ def create_embedding_model(kind: str, model_name: str | None = None) -> Embeddin
             print("Koristi se lokalni embedding model kao fallback.")
             return HashingEmbeddingModel()
     raise ValueError(f"Nepoznat embedding model: {kind}")
-
-
