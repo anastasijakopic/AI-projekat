@@ -16,8 +16,8 @@ class RagPipeline:
         embedding_model: EmbeddingModel,
         vector_backend: str = "numpy",
         metric: str = "cosine",
-        chunk_size: int = 700,
-        overlap: int = 120,
+        chunk_size: int = 900,
+        overlap: int = 180,
     ):
         self.embedding_model = embedding_model
         self.vector_backend = vector_backend
@@ -40,6 +40,8 @@ class RagPipeline:
 
         # Svaki chunk se pretvara u embedding vektor i indeksira u vector store.
         texts = [chunk.text for chunk in self.chunks]
+        if hasattr(self.embedding_model, "fit"):
+            self.embedding_model.fit(texts)
         embeddings = self.embedding_model.encode(texts)
         self.store = create_vector_store(
             self.chunks,
@@ -73,3 +75,5 @@ class RagPipeline:
             "cosine": self.ask(question, top_k=top_k, metric="cosine")[1],
             "euclidean": self.ask(question, top_k=top_k, metric="euclidean")[1],
         }
+
+
